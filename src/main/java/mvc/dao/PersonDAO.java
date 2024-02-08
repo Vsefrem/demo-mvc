@@ -30,6 +30,15 @@ public class PersonDAO {
         people.add(person);
     }
 
+    public void edit(int id, Person person) {
+        Person personToBeUpdated = show(id);
+        personToBeUpdated.setName(person.getName());
+    }
+
+    public void delete(int id) {
+        people.removeIf(p -> p.getId() == id);
+    }
+
     public Person show(int id) {
         return people.stream().filter(person -> person.getId() == id).findAny().orElse(null);
     }
