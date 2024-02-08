@@ -8,20 +8,26 @@ import java.util.List;
 
 @Component
 public class PersonDAO {
+    private static int PEOPLE_COUNT;
     private List<Person> people;
 
     {
         people = new ArrayList<>();
 
-        people.add(new Person(1, "Tom"));
-        people.add(new Person(2, "Chmo"));
-        people.add(new Person(3, "Chert"));
-        people.add(new Person(4, "Loh"));
+        people.add(new Person(++PEOPLE_COUNT, "Tom"));
+        people.add(new Person(++PEOPLE_COUNT, "Chmo"));
+        people.add(new Person(++PEOPLE_COUNT, "Chert"));
+        people.add(new Person(++PEOPLE_COUNT, "Loh"));
 
     }
 
     public List<Person> index() {
         return people;
+    }
+
+    public void save(Person person) {
+        person.setId(++PEOPLE_COUNT);
+        people.add(person);
     }
 
     public Person show(int id) {
