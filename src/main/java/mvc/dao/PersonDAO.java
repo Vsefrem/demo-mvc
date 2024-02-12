@@ -1,47 +1,46 @@
 package mvc.dao;
 
+import java.sql.*;
 import java.util.ArrayList;
 import mvc.models.Person;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component
 public class PersonDAO {
-    private static int PEOPLE_COUNT;
-    private List<Person> people;
 
-    {
-        people = new ArrayList<>();
+    private final JdbcTemplate jdbcTemplate;
 
-        people.add(new Person(++PEOPLE_COUNT, "Tom", 42, "tom@mail.ru"));
-        people.add(new Person(++PEOPLE_COUNT, "Chmo", 17, "chmo@mail.ru" ));
-        people.add(new Person(++PEOPLE_COUNT, "Chert", 32, "chert@mail.ru"));
-        people.add(new Person(++PEOPLE_COUNT, "Loh", 24, "loh@mail.ru"));
-
+    @Autowired
+    public PersonDAO(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
+    private static int PEOPLE_COUNT;
+
     public List<Person> index() {
-        return people;
+        return jdbcTemplate.query("SELECT * FROM Person", new BeanPropertyRowMapper<>(Person.class));
     }
 
     public void save(Person person) {
-        person.setId(++PEOPLE_COUNT);
-        people.add(person);
+        jdbcTemplate.update("INSERT INTO Person VALUES(1, ?, ?, ?)", person.getName(), person.getAge(), person.getEmail());
     }
 
     public void edit(int id, Person person) {
-        Person personToBeUpdated = show(id);
-        personToBeUpdated.setName(person.getName());
-        personToBeUpdated.setAge(person.getAge());
-        personToBeUpdated.setEmail(person.getEmail());
+        jdbcTemplate.update("UPDATE Person SET name=?, age=?, email=? WHERE id=?", person.getName(), person.getAge(), person.getEmail());
     }
 
     public void delete(int id) {
-        people.removeIf(p -> p.getId() == id);
+        jdbcTemplate.update("DELETE FROM Person WHERE id=?", id);
     }
 
     public Person show(int id) {
-        return people.stream().filter(person -> person.getId() == id).findAny().orElse(null);
+        return jdbcTemplate.query("SELECT * FROM Person WHERE id=?", new Object[]{id}, new BeanPropertyRowMapper<>(Person.class))
+                .stream().findAny().orElse(null);
     }
 }
